@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shopify Profit Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #0e0e10;
+      --surface: #18181c;
+      --surface2: #222228;
+      --border: rgba(255,255,255,0.07);
+      --border2: rgba(255,255,255,0.13);
+      --text: #f0efe8;
+      --muted: #888580;
+      --faint: #444240;
+      --green: #1fba85;
+      --green-dim: #0d6b4c;
+      --red: #e05a3a;
+      --red-dim: #7a2e18;
+      --amber: #e8a030;
+      --amber-dim: #7a5010;
+      --mono: 'DM Mono', monospace;
+      --sans: 'Syne', sans-serif;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      padding: 2rem 1rem 4rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 780px;
+    }
+
+    header {
+      margin-bottom: 2.5rem;
+      border-bottom: 0.5px solid var(--border2);
+      padding-bottom: 1.5rem;
+    }
+
+    .eyebrow {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    h1 {
+      font-size: clamp(26px, 5vw, 42px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      color: var(--text);
+    }
+
+    h1 span {
+      color: var(--green);
+    }
+
+    .subtitle {
+      margin-top: 0.6rem;
+      font-size: 14px;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+
+    /* MODEL TABS */
+    .tab-label {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 10px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+
+    .tab {
+      padding: 7px 16px;
+      border-radius: 6px;
+      border: 0.5px solid var(--border2);
+      font-size: 13px;
+      font-family: var(--sans);
+      font-weight: 500;
+      cursor: pointer;
+      background: transparent;
+      color: var(--muted);
+      transition: all 0.15s;
+    }
+
+    .tab:hover { border-color: rgba(255,255,255,0.25); color: var(--text); }
+
+    .tab.active {
+      background: var(--surface2);
+      color: var(--text);
+      border-color: var(--border2);
+    }
+
+    /* METRICS ROW */
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 2rem;
+    }
+
+    @media (max-width: 540px) {
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    .metric {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      transition: border-color 0.2s;
+    }
+
+    .metric:hover { border-color: var(--border2); }
+
+    .metric .mlabel {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .metric .mval {
+      font-family: var(--mono);
+      font-size: 22px;
+      font-weight: 500;
+      letter-spacing: -0.02em;
+    }
+
+    .metric .msub {
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    /* MAIN LAYOUT */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 600px) {
+      .main-grid { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+    }
+
+    .panel-title {
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 0.5px solid var(--border);
+    }
+
+    /* SLIDERS */
+    .sliders { display: flex; flex-direction: column; gap: 16px; }
+
+    .slider-row { display: flex; flex-direction: column; gap: 6px; }
+
+    .slider-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+    }
+
+    .slider-top label {
+      font-size: 13px;
+      color: var(--text);
+    }
+
+    .slider-top .sval {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--green);
+    }
+
+    input[type=range] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 3px;
+      border-radius: 2px;
+      background: var(--surface2);
+      outline: none;
+      cursor: pointer;
+    }
+
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--green);
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+
+    input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
+    input[type=range]::-moz-range-thumb {
+      width: 16px; height: 16px; border-radius: 50%;
+      background: var(--green); cursor: pointer; border: none;
+    }
+
+    .slider-hint { font-size: 11px; color: var(--faint); font-family: var(--mono); }
+
+    /* BREAKDOWN */
+    .breakdown { display: flex; flex-direction: column; gap: 0; }
+
+    .brow {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 9px 0;
+      border-bottom: 0.5px solid var(--border);
+      font-size: 13px;
+    }
+
+    .brow:last-child { border-bottom: none; }
+
+    .brow .bname { color: var(--muted); }
+    .brow .bval { font-family: var(--mono); font-size: 13px; }
+    .brow.total { margin-top: 4px; padding-top: 12px; border-top: 0.5px solid var(--border2); border-bottom: none; }
+    .brow.total .bname { color: var(--text); font-weight: 600; }
+    .brow.total .bval { font-size: 15px; }
+    .neg { color: var(--red); }
+    .pos { color: var(--green); }
+
+    /* BAR */
+    .bar-section {
+      background: var(--surface);
+      border: 0.5px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 1.5rem;
+    }
+
+    .bar-track {
+      height: 36px;
+      border-radius: 8px;
+      background: var(--surface2);
+      overflow: hidden;
+      display: flex;
+      margin-bottom: 14px;
+    }
+
+    .bar-seg {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      font-family: var(--mono);
+      transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+      white-space: nowrap;
+      letter-spacing: 0.04em;
+    }
+
+    .bar-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 2px;
+      flex-shrink: 0;
+    }
+
+    /* VERDICT */
+    .verdict {
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-size: 13px;
+      font-family: var(--mono);
+      line-height: 1.6;
+      border: 0.5px solid;
+    }
+
+    .verdict.good { background: rgba(31,186,133,0.07); border-color: rgba(31,186,133,0.25); color: var(--green); }
+    .verdict.ok   { background: rgba(232,160,48,0.07);  border-color: rgba(232,160,48,0.25);  color: var(--amber); }
+    .verdict.bad  { background: rgba(224,90,58,0.07);   border-color: rgba(224,90,58,0.25);   color: var(--red); }
+
+    footer {
+      margin-top: 3rem;
+      text-align: center;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--faint);
+      letter-spacing: 0.06em;
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header>
+    <p class="eyebrow">Revenue ≠ Profit</p>
+    <h1>Shopify <span>Profit</span> Calculator</h1>
+    <p class="subtitle">// $50,000 revenue day — what do you actually take home?</p>
+  </header>
+
+  <div class="tab-label">Business model</div>
+  <div class="tabs">
+    <button class="tab active" onclick="setModel('dropship')">Dropshipping</button>
+    <button class="tab" onclick="setModel('pod')">Print on demand</button>
+    <button class="tab" onclick="setModel('brand')">Branded product</button>
+    <button class="tab" onclick="setModel('digital')">Digital product</button>
+  </div>
+
+  <div class="metrics" id="metrics"></div>
+
+  <div class="main-grid">
+    <div class="panel">
+      <div class="panel-title">Adjust costs</div>
+      <div class="sliders">
+        <div class="slider-row">
+          <div class="slider-top">
+            <label>Ad spend</label>
+            <span class="sval" id="ads-out">35%</span>
+          </div>
+          <input type="range" id="ads" min="0" max="70" step="1" value="35" oninput="update()" />
+          <span class="slider-hint">% of revenue spent on paid ads</span>
+        </div>
+        <div class="slider-row">
+          <div class="slider-top">
+            <label>Product / fulfillment cost</label>
+            <span class="sval" id="cogs-out">30%</span>
+          </div>
+          <input type="range" id="cogs" min="0" max="60" step="1" value="30" oninput="update()" />
+          <span class="slider-hint">% of revenue for goods + shipping</span>
+        </div>
+        <div class="slider-row">
+          <div class="slider-top">
+            <label>Returns & chargebacks</label>
+            <span class="sval" id="returns-out">5%</span>
+          </div>
+          <input type="range" id="returns" min="0" max="20" step="1" value="5" oninput="update()" />
+          <span class="slider-hint">% of revenue lost to refunds</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-title">Breakdown</div>
+      <div class="breakdown" id="breakdown"></div>
+    </div>
+  </div>
+
+  <div class="bar-section">
+    <div class="panel-title" style="margin-bottom:14px;">Where the $50k goes</div>
+    <div class="bar-track" id="bar"></div>
+    <div class="bar-legend" id="legend"></div>
+  </div>
+
+  <div id="verdict"></div>
+
+  <footer>built for personal use &nbsp;·&nbsp; revenue ≠ profit</footer>
+</div>
+
+<script>
+  const REVENUE = 50000;
+
+  const models = {
+    dropship: { ads: 35, cogs: 30, returns: 5 },
+    pod:      { ads: 30, cogs: 40, returns: 3 },
+    brand:    { ads: 20, cogs: 25, returns: 6 },
+    digital:  { ads: 25, cogs: 0,  returns: 1 },
+  };
+
+  const modelNames = {
+    dropship: 'Dropshipping',
+    pod: 'Print on demand',
+    brand: 'Branded product',
+    digital: 'Digital product',
+  };
+
+  let current = 'dropship';
+
+  function setModel(m) {
+    current = m;
+    document.querySelectorAll('.tab').forEach(t => {
+      t.classList.toggle('active', t.textContent.trim() === modelNames[m]);
+    });
+    const d = models[m];
+    document.getElementById('ads').value = d.ads;
+    document.getElementById('cogs').value = d.cogs;
+    document.getElementById('returns').value = d.returns;
+    update();
+  }
+
+  function fmt(n) {
+    return '$' + Math.round(n).toLocaleString();
+  }
+
+  function pct(n) {
+    return Math.round(n) + '%';
+  }
+
+  function update() {
+    const ads     = +document.getElementById('ads').value;
+    const cogs    = +document.getElementById('cogs').value;
+    const ret     = +document.getElementById('returns').value;
+    const fees    = 2;
+    const overhead = 2;
+
+    document.getElementById('ads-out').textContent     = pct(ads);
+    document.getElementById('cogs-out').textContent    = pct(cogs);
+    document.getElementById('returns-out').textContent = pct(ret);
+
+    const adAmt       = REVENUE * ads / 100;
+    const cogsAmt     = REVENUE * cogs / 100;
+    const retAmt      = REVENUE * ret / 100;
+    const feesAmt     = REVENUE * fees / 100;
+    const overheadAmt = REVENUE * overhead / 100;
+    const totalCost   = adAmt + cogsAmt + retAmt + feesAmt + overheadAmt;
+    const profit      = REVENUE - totalCost;
+    const margin      = profit / REVENUE * 100;
+
+    const marginColor = margin >= 20 ? 'var(--green)' : margin >= 10 ? 'var(--amber)' : 'var(--red)';
+
+    document.getElementById('metrics').innerHTML = `
+      <div class="metric">
+        <div class="mlabel">Revenue</div>
+        <div class="mval" style="color:var(--text)">${fmt(REVENUE)}</div>
+        <div class="msub">gross sales</div>
+      </div>
+      <div class="metric">
+        <div class="mlabel">Total costs</div>
+        <div class="mval" style="color:var(--red)">${fmt(totalCost)}</div>
+        <div class="msub">${pct(Math.round(totalCost/REVENUE*100))} of revenue</div>
+      </div>
+      <div class="metric">
+        <div class="mlabel">Take-home</div>
+        <div class="mval" style="color:${marginColor}">${fmt(profit)}</div>
+        <div class="msub">actual profit</div>
+      </div>
+      <div class="metric">
+        <div class="mlabel">Net margin</div>
+        <div class="mval" style="color:${marginColor}">${Math.round(margin)}%</div>
+        <div class="msub">${margin >= 20 ? 'healthy' : margin >= 10 ? 'thin' : 'dangerously low'}</div>
+      </div>
+    `;
+
+    document.getElementById('breakdown').innerHTML = `
+      <div class="brow"><span class="bname">Revenue</span><span class="bval pos">${fmt(REVENUE)}</span></div>
+      <div class="brow"><span class="bname">Ad spend (${pct(ads)})</span><span class="bval neg">−${fmt(adAmt)}</span></div>
+      <div class="brow"><span class="bname">Product / fulfillment (${pct(cogs)})</span><span class="bval neg">−${fmt(cogsAmt)}</span></div>
+      <div class="brow"><span class="bname">Returns & chargebacks (${pct(ret)})</span><span class="bval neg">−${fmt(retAmt)}</span></div>
+      <div class="brow"><span class="bname">Platform fees & apps (${pct(fees)})</span><span class="bval neg">−${fmt(feesAmt)}</span></div>
+      <div class="brow"><span class="bname">Misc overhead (${pct(overhead)})</span><span class="bval neg">−${fmt(overheadAmt)}</span></div>
+      <div class="brow total"><span class="bname">Take-home profit</span><span class="bval ${profit >= 0 ? 'pos' : 'neg'}">${fmt(profit)}</span></div>
+    `;
+
+    const segs = [
+      { label: 'Ads',     val: adAmt,              color: '#e05a3a' },
+      { label: 'Product', val: cogsAmt,             color: '#888580' },
+      { label: 'Returns', val: retAmt,              color: '#e8a030' },
+      { label: 'Fees',    val: feesAmt + overheadAmt, color: '#444240' },
+      { label: 'Profit',  val: Math.max(profit, 0), color: '#1fba85' },
+    ];
+
+    document.getElementById('bar').innerHTML = segs.map(s => {
+      const w = Math.max(s.val / REVENUE * 100, 0).toFixed(1);
+      return `<div class="bar-seg" style="width:${w}%;background:${s.color};color:#fff;">${w > 7 ? s.label : ''}</div>`;
+    }).join('');
+
+    document.getElementById('legend').innerHTML = segs.map(s =>
+      `<div class="legend-item">
+        <div class="legend-dot" style="background:${s.color}"></div>
+        ${s.label} — ${fmt(s.val)}
+      </div>`
+    ).join('');
+
+    let verdictClass, verdictText;
+    if (margin >= 25) {
+      verdictClass = 'good';
+      verdictText = `// Strong margin at ${Math.round(margin)}%. You're keeping ${fmt(profit)} of every $50k day. This is a healthy, scalable business.`;
+    } else if (margin >= 12) {
+      verdictClass = 'ok';
+      verdictText = `// Thin but viable at ${Math.round(margin)}%. You're keeping ${fmt(profit)}. One bad ad campaign or return spike wipes this out — optimize costs.`;
+    } else if (margin > 0) {
+      verdictClass = 'bad';
+      verdictText = `// Warning: only ${Math.round(margin)}% margin. You're keeping ${fmt(profit)} on $50k revenue. Any unexpected cost or ad underperformance puts you in the red.`;
+    } else {
+      verdictClass = 'bad';
+      verdictText = `// You're losing money. With these costs, a $50k revenue day actually costs you ${fmt(Math.abs(profit))} more than you make. Unsustainable.`;
+    }
+
+    document.getElementById('verdict').innerHTML = `<div class="verdict ${verdictClass}">${verdictText}</div>`;
+  }
+
+  update();
+</script>
+</body>
+</html>
