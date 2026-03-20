@@ -1,548 +1,863 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Shopify Profit Calculator</title>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Ultimate Profit Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#07080a;
+  --s1:#0f1014;
+  --s2:#16171d;
+  --s3:#1e1f27;
+  --b1:rgba(255,255,255,0.05);
+  --b2:rgba(255,255,255,0.1);
+  --b3:rgba(255,255,255,0.18);
+  --tx:#eceae0;
+  --muted:#6b6a64;
+  --faint:#2e2e36;
+  --green:#00d68a;
+  --green2:#00a86b;
+  --green-bg:rgba(0,214,138,0.07);
+  --red:#ff5c3a;
+  --red-bg:rgba(255,92,58,0.07);
+  --amber:#f0a030;
+  --amber-bg:rgba(240,160,48,0.07);
+  --blue:#4a9eff;
+  --blue-bg:rgba(74,158,255,0.07);
+  --serif:'Instrument Serif',serif;
+  --mono:'IBM Plex Mono',monospace;
+  --sans:'Manrope',sans-serif;
+  --r:10px;
+  --r2:14px;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--tx);font-family:var(--sans);min-height:100vh;overflow-x:hidden}
 
-    :root {
-      --bg: #0e0e10;
-      --surface: #18181c;
-      --surface2: #222228;
-      --border: rgba(255,255,255,0.07);
-      --border2: rgba(255,255,255,0.13);
-      --text: #f0efe8;
-      --muted: #888580;
-      --faint: #444240;
-      --green: #1fba85;
-      --green-dim: #0d6b4c;
-      --red: #e05a3a;
-      --red-dim: #7a2e18;
-      --amber: #e8a030;
-      --amber-dim: #7a5010;
-      --mono: 'DM Mono', monospace;
-      --sans: 'Syne', sans-serif;
-    }
+/* NOISE TEXTURE */
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:0;opacity:.4}
 
-    body {
-      background: var(--bg);
-      color: var(--text);
-      font-family: var(--sans);
-      min-height: 100vh;
-      padding: 2rem 1rem 4rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
+.wrap{max-width:1100px;margin:0 auto;padding:2rem 1.5rem 5rem;position:relative;z-index:1}
 
-    .page {
-      width: 100%;
-      max-width: 780px;
-    }
+/* HEADER */
+.hdr{display:flex;flex-direction:column;gap:6px;margin-bottom:3rem;padding-bottom:2rem;border-bottom:0.5px solid var(--b2)}
+.hdr-top{display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:1rem}
+.eyebrow{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin-bottom:.4rem}
+h1{font-family:var(--serif);font-size:clamp(32px,6vw,58px);font-weight:400;line-height:1;color:var(--tx);letter-spacing:-.01em}
+h1 em{font-style:italic;color:var(--green)}
+.hdr-sub{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:.5rem}
 
-    header {
-      margin-bottom: 2.5rem;
-      border-bottom: 0.5px solid var(--border2);
-      padding-bottom: 1.5rem;
-    }
+/* REVENUE INPUT */
+.rev-block{display:flex;flex-direction:column;gap:8px;align-items:flex-end}
+.rev-label{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--muted);text-transform:uppercase}
+.rev-input-wrap{display:flex;align-items:center;gap:0;background:var(--s2);border:0.5px solid var(--b3);border-radius:var(--r);overflow:hidden}
+.rev-prefix{font-family:var(--mono);font-size:22px;padding:10px 12px;color:var(--muted);background:var(--s3);border-right:0.5px solid var(--b2)}
+#revenueInput{background:transparent;border:none;outline:none;font-family:var(--mono);font-size:22px;font-weight:500;color:var(--tx);padding:10px 14px;width:160px;text-align:right}
+.period-sel{padding:10px 12px;background:var(--s3);border-left:0.5px solid var(--b2);font-family:var(--mono);font-size:12px;color:var(--muted);border:none;outline:none;cursor:pointer;appearance:none;-webkit-appearance:none}
+.period-sel option{background:var(--s2)}
 
-    .eyebrow {
-      font-family: var(--mono);
-      font-size: 11px;
-      letter-spacing: 0.12em;
-      color: var(--muted);
-      text-transform: uppercase;
-      margin-bottom: 0.5rem;
-    }
+/* CATEGORY TABS */
+.cat-scroll{overflow-x:auto;padding-bottom:4px;margin-bottom:1rem;scrollbar-width:none}
+.cat-scroll::-webkit-scrollbar{display:none}
+.cats{display:flex;gap:6px;width:max-content}
+.cat-btn{padding:6px 14px;border-radius:20px;border:0.5px solid var(--b2);font-family:var(--sans);font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--muted);white-space:nowrap;transition:all .15s}
+.cat-btn:hover{border-color:var(--b3);color:var(--tx)}
+.cat-btn.active{background:var(--green);color:#000;border-color:transparent;font-weight:600}
 
-    h1 {
-      font-size: clamp(26px, 5vw, 42px);
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      line-height: 1.1;
-      color: var(--text);
-    }
+/* MODEL GRID */
+.model-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px;margin-bottom:2rem}
+.model-card{background:var(--s1);border:0.5px solid var(--b1);border-radius:var(--r);padding:14px;cursor:pointer;transition:all .15s;position:relative;overflow:hidden}
+.model-card::before{content:'';position:absolute;inset:0;background:var(--green);opacity:0;transition:opacity .15s}
+.model-card:hover{border-color:var(--b2);transform:translateY(-1px)}
+.model-card.active{border-color:var(--green);background:var(--green-bg)}
+.model-card.active::before{opacity:.04}
+.mc-icon{font-size:20px;margin-bottom:6px;display:block}
+.mc-name{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:2px}
+.mc-desc{font-size:11px;color:var(--muted);line-height:1.4}
+.mc-badge{position:absolute;top:8px;right:8px;font-family:var(--mono);font-size:9px;padding:2px 6px;border-radius:4px;font-weight:500}
+.mc-badge.high{background:var(--green-bg);color:var(--green)}
+.mc-badge.med{background:var(--amber-bg);color:var(--amber)}
+.mc-badge.low{background:var(--red-bg);color:var(--red)}
 
-    h1 span {
-      color: var(--green);
-    }
+/* MAIN LAYOUT */
+.main{display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start}
+@media(max-width:860px){.main{grid-template-columns:1fr}}
 
-    .subtitle {
-      margin-top: 0.6rem;
-      font-size: 14px;
-      color: var(--muted);
-      font-family: var(--mono);
-    }
+/* COST EDITOR */
+.panel{background:var(--s1);border:0.5px solid var(--b1);border-radius:var(--r2);padding:20px}
+.panel-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;padding-bottom:12px;border-bottom:0.5px solid var(--b1)}
+.panel-title{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.btn-sm{font-family:var(--mono);font-size:11px;padding:4px 10px;border-radius:6px;border:0.5px solid var(--b2);background:transparent;color:var(--muted);cursor:pointer;transition:all .15s}
+.btn-sm:hover{border-color:var(--b3);color:var(--tx)}
 
-    /* MODEL TABS */
-    .tab-label {
-      font-family: var(--mono);
-      font-size: 11px;
-      letter-spacing: 0.1em;
-      color: var(--muted);
-      text-transform: uppercase;
-      margin-bottom: 10px;
-    }
+.cost-items{display:flex;flex-direction:column;gap:2px;margin-bottom:12px}
+.cost-row{display:grid;grid-template-columns:1fr auto auto auto;gap:8px;align-items:center;padding:8px 10px;border-radius:8px;background:transparent;transition:background .15s}
+.cost-row:hover{background:var(--s2)}
+.cost-name-input{background:transparent;border:none;outline:none;font-family:var(--sans);font-size:13px;color:var(--tx);width:100%;min-width:0}
+.cost-name-input::placeholder{color:var(--faint)}
+.cost-type{font-family:var(--mono);font-size:10px;padding:2px 7px;border-radius:4px;background:var(--s3);border:0.5px solid var(--b1);color:var(--muted);cursor:pointer;appearance:none;-webkit-appearance:none;outline:none}
+.cost-type option{background:var(--s2)}
+.cost-val-wrap{display:flex;align-items:center;gap:2px;background:var(--s2);border:0.5px solid var(--b1);border-radius:6px;padding:4px 8px}
+.cost-val{background:transparent;border:none;outline:none;font-family:var(--mono);font-size:13px;color:var(--tx);width:56px;text-align:right}
+.cost-sym{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.del-btn{background:transparent;border:none;cursor:pointer;color:var(--faint);font-size:16px;padding:2px 4px;line-height:1;transition:color .15s;border-radius:4px}
+.del-btn:hover{color:var(--red)}
 
-    .tabs {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      margin-bottom: 2rem;
-    }
+.add-cost-row{display:flex;gap:8px;margin-top:8px}
+.add-cost-row input{flex:1;background:var(--s2);border:0.5px solid var(--b1);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--tx);outline:none;transition:border-color .15s}
+.add-cost-row input:focus{border-color:var(--b3)}
+.add-cost-row input::placeholder{color:var(--faint)}
+.add-btn{padding:8px 14px;background:var(--s3);border:0.5px solid var(--b2);border-radius:8px;font-family:var(--mono);font-size:12px;color:var(--tx);cursor:pointer;transition:all .15s;white-space:nowrap}
+.add-btn:hover{background:var(--green);color:#000;border-color:transparent}
 
-    .tab {
-      padding: 7px 16px;
-      border-radius: 6px;
-      border: 0.5px solid var(--border2);
-      font-size: 13px;
-      font-family: var(--sans);
-      font-weight: 500;
-      cursor: pointer;
-      background: transparent;
-      color: var(--muted);
-      transition: all 0.15s;
-    }
+/* RESULTS PANEL */
+.results{display:flex;flex-direction:column;gap:12px}
 
-    .tab:hover { border-color: rgba(255,255,255,0.25); color: var(--text); }
+.big-number{background:var(--s1);border:0.5px solid var(--b1);border-radius:var(--r2);padding:22px}
+.bn-label{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+.bn-val{font-family:var(--serif);font-size:48px;line-height:1;letter-spacing:-.02em}
+.bn-sub{font-family:var(--mono);font-size:12px;margin-top:6px}
 
-    .tab.active {
-      background: var(--surface2);
-      color: var(--text);
-      border-color: var(--border2);
-    }
+.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stat{background:var(--s1);border:0.5px solid var(--b1);border-radius:var(--r);padding:14px}
+.stat-l{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.stat-v{font-family:var(--mono);font-size:18px;font-weight:500}
+.stat-s{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:2px}
 
-    /* METRICS ROW */
-    .metrics {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 10px;
-      margin-bottom: 2rem;
-    }
+/* DONUT */
+.donut-panel{background:var(--s1);border:0.5px solid var(--b1);border-radius:var(--r2);padding:20px}
+.donut-wrap{display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.donut-svg-wrap{position:relative;flex-shrink:0}
+.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+.donut-center-val{font-family:var(--mono);font-size:18px;font-weight:500}
+.donut-center-lbl{font-family:var(--mono);font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+.donut-legend{flex:1;min-width:120px;display:flex;flex-direction:column;gap:6px}
+.dl-item{display:flex;align-items:center;gap:8px;font-size:12px}
+.dl-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+.dl-name{flex:1;color:var(--muted)}
+.dl-val{font-family:var(--mono);font-size:11px;color:var(--tx)}
 
-    @media (max-width: 540px) {
-      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
+/* BAR */
+.bar-panel{background:var(--s1);border:0.5px solid var(--b1);border-radius:var(--r2);padding:20px}
+.bar-track{height:40px;border-radius:8px;overflow:hidden;display:flex;margin-bottom:10px;background:var(--s3)}
+.bar-seg{height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:10px;font-weight:500;transition:width .4s cubic-bezier(.4,0,.2,1);overflow:hidden;white-space:nowrap;letter-spacing:.04em}
 
-    .metric {
-      background: var(--surface);
-      border: 0.5px solid var(--border);
-      border-radius: 10px;
-      padding: 14px 16px;
-      transition: border-color 0.2s;
-    }
+/* PROJECTION */
+.proj-panel{background:var(--s1);border:0.5px solid var(--b1);border-radius:var(--r2);padding:20px}
+.proj-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+.proj-item{text-align:center;padding:12px 8px;background:var(--s2);border-radius:var(--r)}
+.proj-period{font-family:var(--mono);font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:4px}
+.proj-val{font-family:var(--mono);font-size:15px;font-weight:500}
 
-    .metric:hover { border-color: var(--border2); }
+/* BREAKEVEN */
+.be-panel{background:var(--s1);border:0.5px solid var(--b1);border-radius:var(--r2);padding:20px}
+.be-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:0.5px solid var(--b1);font-size:13px}
+.be-row:last-child{border-bottom:none}
+.be-key{color:var(--muted)}
+.be-val{font-family:var(--mono);font-size:13px}
 
-    .metric .mlabel {
-      font-family: var(--mono);
-      font-size: 11px;
-      letter-spacing: 0.08em;
-      color: var(--muted);
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
+/* VERDICT */
+.verdict{border-radius:var(--r);padding:14px 16px;font-family:var(--mono);font-size:12px;line-height:1.7;border:0.5px solid}
+.verdict.great{background:var(--green-bg);border-color:rgba(0,214,138,.2);color:var(--green)}
+.verdict.ok{background:var(--amber-bg);border-color:rgba(240,160,48,.2);color:var(--amber)}
+.verdict.bad{background:var(--red-bg);border-color:rgba(255,92,58,.2);color:var(--red)}
 
-    .metric .mval {
-      font-family: var(--mono);
-      font-size: 22px;
-      font-weight: 500;
-      letter-spacing: -0.02em;
-    }
+/* COMPARE */
+.compare-section{margin-top:2rem}
+.compare-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}
+@media(max-width:640px){.compare-grid{grid-template-columns:1fr}}
+.cmp-card{background:var(--s1);border:0.5px solid var(--b1);border-radius:var(--r2);padding:18px}
+.cmp-sel{width:100%;background:var(--s2);border:0.5px solid var(--b2);border-radius:8px;padding:8px 12px;font-family:var(--sans);font-size:13px;color:var(--tx);outline:none;margin-bottom:14px;appearance:none;-webkit-appearance:none;cursor:pointer}
+.cmp-sel option{background:var(--s2)}
+.cmp-rows{display:flex;flex-direction:column;gap:0}
+.cmp-row{display:flex;justify-content:space-between;padding:7px 0;border-bottom:0.5px solid var(--b1);font-size:13px}
+.cmp-row:last-child{border-bottom:none;font-weight:600;padding-top:10px}
+.cmp-k{color:var(--muted)}
+.cmp-v{font-family:var(--mono);font-size:13px}
+.winner-badge{display:inline-flex;align-items:center;gap:4px;font-family:var(--mono);font-size:10px;padding:3px 8px;border-radius:20px;background:var(--green-bg);color:var(--green);border:0.5px solid rgba(0,214,138,.2);margin-top:8px}
 
-    .metric .msub {
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--muted);
-      margin-top: 2px;
-    }
+/* SECTION LABEL */
+.sec-label{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:12px}
 
-    /* MAIN LAYOUT */
-    .main-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-      margin-bottom: 1.5rem;
-    }
+/* DIVIDER */
+.divider{height:0.5px;background:var(--b1);margin:2rem 0}
 
-    @media (max-width: 600px) {
-      .main-grid { grid-template-columns: 1fr; }
-    }
+/* SCROLL HINT */
+@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.panel,.big-number,.stat,.donut-panel,.bar-panel,.proj-panel,.be-panel{animation:fadeIn .3s ease both}
 
-    .panel {
-      background: var(--surface);
-      border: 0.5px solid var(--border);
-      border-radius: 12px;
-      padding: 18px 20px;
-    }
-
-    .panel-title {
-      font-family: var(--mono);
-      font-size: 11px;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: var(--muted);
-      margin-bottom: 16px;
-      padding-bottom: 10px;
-      border-bottom: 0.5px solid var(--border);
-    }
-
-    /* SLIDERS */
-    .sliders { display: flex; flex-direction: column; gap: 16px; }
-
-    .slider-row { display: flex; flex-direction: column; gap: 6px; }
-
-    .slider-top {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-    }
-
-    .slider-top label {
-      font-size: 13px;
-      color: var(--text);
-    }
-
-    .slider-top .sval {
-      font-family: var(--mono);
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--green);
-    }
-
-    input[type=range] {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 100%;
-      height: 3px;
-      border-radius: 2px;
-      background: var(--surface2);
-      outline: none;
-      cursor: pointer;
-    }
-
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none;
-      appearance: none;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      background: var(--green);
-      cursor: pointer;
-      transition: transform 0.1s;
-    }
-
-    input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.2); }
-    input[type=range]::-moz-range-thumb {
-      width: 16px; height: 16px; border-radius: 50%;
-      background: var(--green); cursor: pointer; border: none;
-    }
-
-    .slider-hint { font-size: 11px; color: var(--faint); font-family: var(--mono); }
-
-    /* BREAKDOWN */
-    .breakdown { display: flex; flex-direction: column; gap: 0; }
-
-    .brow {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 9px 0;
-      border-bottom: 0.5px solid var(--border);
-      font-size: 13px;
-    }
-
-    .brow:last-child { border-bottom: none; }
-
-    .brow .bname { color: var(--muted); }
-    .brow .bval { font-family: var(--mono); font-size: 13px; }
-    .brow.total { margin-top: 4px; padding-top: 12px; border-top: 0.5px solid var(--border2); border-bottom: none; }
-    .brow.total .bname { color: var(--text); font-weight: 600; }
-    .brow.total .bval { font-size: 15px; }
-    .neg { color: var(--red); }
-    .pos { color: var(--green); }
-
-    /* BAR */
-    .bar-section {
-      background: var(--surface);
-      border: 0.5px solid var(--border);
-      border-radius: 12px;
-      padding: 18px 20px;
-      margin-bottom: 1.5rem;
-    }
-
-    .bar-track {
-      height: 36px;
-      border-radius: 8px;
-      background: var(--surface2);
-      overflow: hidden;
-      display: flex;
-      margin-bottom: 14px;
-    }
-
-    .bar-seg {
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 11px;
-      font-weight: 600;
-      font-family: var(--mono);
-      transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-      overflow: hidden;
-      white-space: nowrap;
-      letter-spacing: 0.04em;
-    }
-
-    .bar-legend {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-family: var(--mono);
-      font-size: 12px;
-      color: var(--muted);
-    }
-
-    .legend-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 2px;
-      flex-shrink: 0;
-    }
-
-    /* VERDICT */
-    .verdict {
-      border-radius: 10px;
-      padding: 14px 18px;
-      font-size: 13px;
-      font-family: var(--mono);
-      line-height: 1.6;
-      border: 0.5px solid;
-    }
-
-    .verdict.good { background: rgba(31,186,133,0.07); border-color: rgba(31,186,133,0.25); color: var(--green); }
-    .verdict.ok   { background: rgba(232,160,48,0.07);  border-color: rgba(232,160,48,0.25);  color: var(--amber); }
-    .verdict.bad  { background: rgba(224,90,58,0.07);   border-color: rgba(224,90,58,0.25);   color: var(--red); }
-
-    footer {
-      margin-top: 3rem;
-      text-align: center;
-      font-family: var(--mono);
-      font-size: 11px;
-      color: var(--faint);
-      letter-spacing: 0.06em;
-    }
-  </style>
+/* RESPONSIVE */
+@media(max-width:600px){
+  .model-grid{grid-template-columns:repeat(2,1fr)}
+  .stat-grid{grid-template-columns:1fr 1fr}
+  .proj-grid{grid-template-columns:repeat(3,1fr)}
+  #revenueInput{width:110px}
+}
+</style>
 </head>
 <body>
-<div class="page">
+<div class="wrap">
 
-  <header>
-    <p class="eyebrow">Revenue ≠ Profit</p>
-    <h1>Shopify <span>Profit</span> Calculator</h1>
-    <p class="subtitle">// $50,000 revenue day — what do you actually take home?</p>
-  </header>
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-top">
+    <div>
+      <div class="eyebrow">Revenue ≠ Profit</div>
+      <h1>Ultimate <em>Profit</em><br>Calculator</h1>
+      <div class="hdr-sub">// Every business model. Every cost. The real number.</div>
+    </div>
+    <div class="rev-block">
+      <div class="rev-label">Your Revenue</div>
+      <div class="rev-input-wrap">
+        <span class="rev-prefix">$</span>
+        <input id="revenueInput" type="text" value="50,000" oninput="onRevInput(this)" onblur="formatRevInput(this)"/>
+        <select class="period-sel" id="periodSel" onchange="update()">
+          <option value="day">/ day</option>
+          <option value="week">/ week</option>
+          <option value="month" selected>/ month</option>
+          <option value="year">/ year</option>
+        </select>
+      </div>
+    </div>
+  </div>
+</header>
 
-  <div class="tab-label">Business model</div>
-  <div class="tabs">
-    <button class="tab active" onclick="setModel('dropship')">Dropshipping</button>
-    <button class="tab" onclick="setModel('pod')">Print on demand</button>
-    <button class="tab" onclick="setModel('brand')">Branded product</button>
-    <button class="tab" onclick="setModel('digital')">Digital product</button>
+<!-- MODEL SELECTION -->
+<div class="sec-label">Business model</div>
+<div class="cat-scroll">
+  <div class="cats" id="cats"></div>
+</div>
+<div class="model-grid" id="modelGrid"></div>
+
+<!-- MAIN -->
+<div class="main">
+  <!-- LEFT: COST EDITOR -->
+  <div>
+    <div class="sec-label">Cost structure</div>
+    <div class="panel">
+      <div class="panel-hdr">
+        <span class="panel-title">Line items</span>
+        <button class="btn-sm" onclick="resetCosts()">Reset to defaults</button>
+      </div>
+      <div class="cost-items" id="costItems"></div>
+      <div class="add-cost-row">
+        <input type="text" id="newCostName" placeholder="Add custom cost..." onkeydown="if(event.key==='Enter')addCustomCost()"/>
+        <select id="newCostType" class="cost-type" style="padding:8px 10px;background:var(--s3);border:0.5px solid var(--b2);border-radius:8px;font-size:12px">
+          <option value="pct">%</option>
+          <option value="fixed">$</option>
+        </select>
+        <button class="add-btn" onclick="addCustomCost()">+ Add</button>
+      </div>
+    </div>
   </div>
 
-  <div class="metrics" id="metrics"></div>
+  <!-- RIGHT: RESULTS -->
+  <div class="results">
 
-  <div class="main-grid">
-    <div class="panel">
-      <div class="panel-title">Adjust costs</div>
-      <div class="sliders">
-        <div class="slider-row">
-          <div class="slider-top">
-            <label>Ad spend</label>
-            <span class="sval" id="ads-out">35%</span>
+    <div class="big-number" id="bigNumber"></div>
+
+    <div class="stat-grid" id="statGrid"></div>
+
+    <!-- DONUT -->
+    <div class="donut-panel">
+      <div class="panel-title" style="margin-bottom:14px">Cost breakdown</div>
+      <div class="donut-wrap">
+        <div class="donut-svg-wrap">
+          <svg id="donutSvg" width="130" height="130" viewBox="0 0 130 130"></svg>
+          <div class="donut-center">
+            <div class="donut-center-val" id="donutCenterVal"></div>
+            <div class="donut-center-lbl">costs</div>
           </div>
-          <input type="range" id="ads" min="0" max="70" step="1" value="35" oninput="update()" />
-          <span class="slider-hint">% of revenue spent on paid ads</span>
         </div>
-        <div class="slider-row">
-          <div class="slider-top">
-            <label>Product / fulfillment cost</label>
-            <span class="sval" id="cogs-out">30%</span>
-          </div>
-          <input type="range" id="cogs" min="0" max="60" step="1" value="30" oninput="update()" />
-          <span class="slider-hint">% of revenue for goods + shipping</span>
-        </div>
-        <div class="slider-row">
-          <div class="slider-top">
-            <label>Returns & chargebacks</label>
-            <span class="sval" id="returns-out">5%</span>
-          </div>
-          <input type="range" id="returns" min="0" max="20" step="1" value="5" oninput="update()" />
-          <span class="slider-hint">% of revenue lost to refunds</span>
-        </div>
+        <div class="donut-legend" id="donutLegend"></div>
       </div>
     </div>
 
-    <div class="panel">
-      <div class="panel-title">Breakdown</div>
-      <div class="breakdown" id="breakdown"></div>
+    <!-- BAR -->
+    <div class="bar-panel">
+      <div class="panel-title" style="margin-bottom:12px">Where your revenue goes</div>
+      <div class="bar-track" id="barTrack"></div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px" id="barLegend"></div>
+    </div>
+
+    <!-- VERDICT -->
+    <div id="verdictEl"></div>
+
+  </div>
+</div>
+
+<!-- PROJECTION -->
+<div class="divider"></div>
+<div class="sec-label">Projections</div>
+<div class="proj-panel">
+  <div class="panel-title" style="margin-bottom:4px">Profit projections based on current margin</div>
+  <div id="projSub" style="font-size:12px;color:var(--muted);font-family:var(--mono);margin-bottom:12px"></div>
+  <div class="proj-grid" id="projGrid"></div>
+</div>
+
+<!-- BREAKEVEN -->
+<div class="divider"></div>
+<div class="sec-label">Break-even analysis</div>
+<div class="be-panel">
+  <div class="panel-title" style="margin-bottom:14px">If you have fixed monthly costs</div>
+  <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;flex-wrap:wrap">
+    <label style="font-size:13px;color:var(--muted)">Fixed monthly overhead ($)</label>
+    <div style="display:flex;align-items:center;gap:0;background:var(--s2);border:0.5px solid var(--b2);border-radius:8px;overflow:hidden">
+      <span style="font-family:var(--mono);padding:7px 10px;color:var(--muted);background:var(--s3);border-right:0.5px solid var(--b1)">$</span>
+      <input id="fixedCosts" type="text" value="2,000" style="background:transparent;border:none;outline:none;font-family:var(--mono);font-size:14px;color:var(--tx);padding:7px 12px;width:110px" oninput="update()" />
+    </div>
+    <label style="font-size:13px;color:var(--muted)">Avg order value ($)</label>
+    <div style="display:flex;align-items:center;gap:0;background:var(--s2);border:0.5px solid var(--b2);border-radius:8px;overflow:hidden">
+      <span style="font-family:var(--mono);padding:7px 10px;color:var(--muted);background:var(--s3);border-right:0.5px solid var(--b1)">$</span>
+      <input id="aov" type="text" value="50" style="background:transparent;border:none;outline:none;font-family:var(--mono);font-size:14px;color:var(--tx);padding:7px 12px;width:90px" oninput="update()"/>
     </div>
   </div>
+  <div class="cmp-rows" id="breakevenRows"></div>
+</div>
 
-  <div class="bar-section">
-    <div class="panel-title" style="margin-bottom:14px;">Where the $50k goes</div>
-    <div class="bar-track" id="bar"></div>
-    <div class="bar-legend" id="legend"></div>
-  </div>
+<!-- COMPARE -->
+<div class="divider"></div>
+<div class="compare-section">
+  <div class="sec-label">Model comparison</div>
+  <div style="font-size:13px;color:var(--muted);margin-bottom:12px">Compare two business models at the same revenue.</div>
+  <div class="compare-grid" id="compareGrid"></div>
+</div>
 
-  <div id="verdict"></div>
-
-  <footer>built for personal use &nbsp;·&nbsp; revenue ≠ profit</footer>
+<footer style="margin-top:3rem;text-align:center;font-family:var(--mono);font-size:11px;color:var(--faint);letter-spacing:.06em">
+  revenue ≠ profit &nbsp;·&nbsp; ultimate profit calculator &nbsp;·&nbsp; all figures are estimates
+</footer>
 </div>
 
 <script>
-  const REVENUE = 50000;
+// ─── DATA ────────────────────────────────────────────────────────────────────
+const CATEGORIES = [
+  {id:'all',label:'All models'},
+  {id:'ecom',label:'E-Commerce'},
+  {id:'services',label:'Services'},
+  {id:'content',label:'Content'},
+  {id:'saas',label:'SaaS / Tech'},
+  {id:'physical',label:'Physical / Retail'},
+  {id:'finance',label:'Finance / Invest'},
+];
 
-  const models = {
-    dropship: { ads: 35, cogs: 30, returns: 5 },
-    pod:      { ads: 30, cogs: 40, returns: 3 },
-    brand:    { ads: 20, cogs: 25, returns: 6 },
-    digital:  { ads: 25, cogs: 0,  returns: 1 },
-  };
+const MODELS = [
+  // ECOM
+  {id:'dropship',cat:'ecom',icon:'📦',name:'Dropshipping',desc:'AliExpress or supplier',margin:'low',
+    costs:[
+      {name:'Paid ads',type:'pct',val:35},
+      {name:'Product cost',type:'pct',val:30},
+      {name:'Returns & chargebacks',type:'pct',val:5},
+      {name:'Platform fees',type:'pct',val:2},
+      {name:'Apps & tools',type:'fixed',val:100},
+    ]},
+  {id:'pod',cat:'ecom',icon:'🎨',name:'Print on Demand',desc:'Printful, Printify, etc.',margin:'low',
+    costs:[
+      {name:'Paid ads',type:'pct',val:28},
+      {name:'Product + fulfillment',type:'pct',val:42},
+      {name:'Returns',type:'pct',val:2},
+      {name:'Platform fees',type:'pct',val:2},
+    ]},
+  {id:'brand',cat:'ecom',icon:'🏷️',name:'Branded Product',desc:'Private label / DTC',margin:'med',
+    costs:[
+      {name:'Paid ads',type:'pct',val:20},
+      {name:'COGS + fulfillment',type:'pct',val:28},
+      {name:'Returns',type:'pct',val:5},
+      {name:'Platform fees',type:'pct',val:2},
+      {name:'Branding & ops',type:'pct',val:5},
+    ]},
+  {id:'wholesale',cat:'ecom',icon:'🏭',name:'Wholesale / B2B',desc:'Bulk to retailers',margin:'med',
+    costs:[
+      {name:'Product cost (COGS)',type:'pct',val:45},
+      {name:'Shipping & logistics',type:'pct',val:8},
+      {name:'Sales & ops',type:'pct',val:10},
+      {name:'Platform / marketplace',type:'pct',val:3},
+    ]},
+  {id:'amazon',cat:'ecom',icon:'🛒',name:'Amazon FBA',desc:'Fulfilled by Amazon',margin:'low',
+    costs:[
+      {name:'Amazon fees (referral+FBA)',type:'pct',val:30},
+      {name:'Product COGS',type:'pct',val:30},
+      {name:'PPC ads',type:'pct',val:15},
+      {name:'Returns',type:'pct',val:4},
+    ]},
+  // DIGITAL
+  {id:'digital',cat:'ecom',icon:'💾',name:'Digital Products',desc:'Templates, presets, ebooks',margin:'high',
+    costs:[
+      {name:'Paid ads',type:'pct',val:20},
+      {name:'Platform fees',type:'pct',val:5},
+      {name:'Refunds',type:'pct',val:2},
+      {name:'Content creation',type:'fixed',val:500},
+    ]},
+  // SERVICES
+  {id:'freelance',cat:'services',icon:'💻',name:'Freelancing',desc:'Design, dev, writing',margin:'high',
+    costs:[
+      {name:'Self-employment tax',type:'pct',val:15},
+      {name:'Software & tools',type:'fixed',val:200},
+      {name:'Marketing',type:'pct',val:5},
+      {name:'Non-billable time est.',type:'pct',val:10},
+    ]},
+  {id:'agency',cat:'services',icon:'🏢',name:'Agency',desc:'Marketing, dev, design agency',margin:'med',
+    costs:[
+      {name:'Contractor / staff',type:'pct',val:45},
+      {name:'Software & tools',type:'fixed',val:800},
+      {name:'Sales & marketing',type:'pct',val:10},
+      {name:'Overhead & ops',type:'pct',val:8},
+    ]},
+  {id:'automation',cat:'services',icon:'⚙️',name:'AI Automation Agency',desc:'n8n, Make, Zapier builds',margin:'high',
+    costs:[
+      {name:'Contractor / delivery',type:'pct',val:25},
+      {name:'Software & APIs',type:'fixed',val:400},
+      {name:'Sales & outreach',type:'pct',val:10},
+      {name:'Overhead',type:'pct',val:5},
+    ]},
+  {id:'consulting',cat:'services',icon:'🎯',name:'Consulting',desc:'Strategy, coaching, advisory',margin:'high',
+    costs:[
+      {name:'Self-employment tax',type:'pct',val:15},
+      {name:'Marketing',type:'pct',val:8},
+      {name:'Tools & misc',type:'fixed',val:300},
+    ]},
+  {id:'smma',cat:'services',icon:'📱',name:'Social Media Agency',desc:'SMMA / content management',margin:'med',
+    costs:[
+      {name:'Content creators / VAs',type:'pct',val:35},
+      {name:'Ad management tools',type:'fixed',val:300},
+      {name:'Client acquisition',type:'pct',val:12},
+      {name:'Overhead',type:'pct',val:5},
+    ]},
+  // CONTENT
+  {id:'youtube',cat:'content',icon:'▶️',name:'YouTube (AdSense)',desc:'Monetized channel',margin:'high',
+    costs:[
+      {name:'Production costs',type:'pct',val:20},
+      {name:'Software & equipment',type:'fixed',val:300},
+      {name:'Taxes (self-employed)',type:'pct',val:25},
+    ]},
+  {id:'faceless',cat:'content',icon:'🎬',name:'Faceless YouTube',desc:'AI-powered automation',margin:'high',
+    costs:[
+      {name:'Script + voice AI tools',type:'fixed',val:200},
+      {name:'Editor / outsourcing',type:'pct',val:25},
+      {name:'Taxes',type:'pct',val:25},
+      {name:'Paid promotion',type:'pct',val:5},
+    ]},
+  {id:'newsletter',cat:'content',icon:'📧',name:'Newsletter',desc:'Beehiiv, Substack, sponsorships',margin:'high',
+    costs:[
+      {name:'Platform fee',type:'pct',val:5},
+      {name:'Growth / acquisition',type:'pct',val:15},
+      {name:'Content & research',type:'pct',val:10},
+      {name:'Taxes',type:'pct',val:25},
+    ]},
+  {id:'course',cat:'content',icon:'🎓',name:'Online Course',desc:'Teachable, Gumroad, Kajabi',margin:'high',
+    costs:[
+      {name:'Platform fee',type:'pct',val:8},
+      {name:'Paid ads',type:'pct',val:20},
+      {name:'Refunds',type:'pct',val:3},
+      {name:'Content production',type:'fixed',val:500},
+    ]},
+  {id:'affiliate',cat:'content',icon:'🔗',name:'Affiliate Marketing',desc:'Commissions & referrals',margin:'high',
+    costs:[
+      {name:'Paid traffic / SEO',type:'pct',val:30},
+      {name:'Tools & hosting',type:'fixed',val:150},
+      {name:'Content creation',type:'pct',val:10},
+      {name:'Taxes',type:'pct',val:25},
+    ]},
+  // SAAS
+  {id:'saas',cat:'saas',icon:'🚀',name:'SaaS / Micro-SaaS',desc:'Subscription software',margin:'high',
+    costs:[
+      {name:'Infrastructure (servers/APIs)',type:'pct',val:10},
+      {name:'Customer support',type:'pct',val:8},
+      {name:'Marketing & growth',type:'pct',val:20},
+      {name:'Churn refunds',type:'pct',val:3},
+      {name:'Dev tools & services',type:'fixed',val:400},
+    ]},
+  {id:'app',cat:'saas',icon:'📲',name:'Mobile App',desc:'In-app purchases, subscriptions',margin:'med',
+    costs:[
+      {name:'App store cut (30%)',type:'pct',val:30},
+      {name:'Infrastructure',type:'pct',val:8},
+      {name:'Marketing / UA',type:'pct',val:20},
+      {name:'Dev & maintenance',type:'fixed',val:1000},
+    ]},
+  {id:'marketplace',cat:'saas',icon:'🏪',name:'Marketplace',desc:'Takes % of transactions',margin:'med',
+    costs:[
+      {name:'Payment processing',type:'pct',val:3},
+      {name:'Infrastructure',type:'pct',val:10},
+      {name:'Support & ops',type:'pct',val:12},
+      {name:'Marketing',type:'pct',val:15},
+    ]},
+  // PHYSICAL
+  {id:'restaurant',cat:'physical',icon:'🍽️',name:'Restaurant / Food',desc:'Dine-in or delivery',margin:'low',
+    costs:[
+      {name:'Food COGS',type:'pct',val:32},
+      {name:'Labour',type:'pct',val:35},
+      {name:'Rent & utilities',type:'fixed',val:5000},
+      {name:'Delivery platform fees',type:'pct',val:8},
+    ]},
+  {id:'retail',cat:'physical',icon:'🏬',name:'Retail Store',desc:'Brick & mortar',margin:'low',
+    costs:[
+      {name:'COGS',type:'pct',val:45},
+      {name:'Rent',type:'fixed',val:4000},
+      {name:'Staff',type:'pct',val:20},
+      {name:'Utilities & misc',type:'fixed',val:800},
+    ]},
+  {id:'manufacturing',cat:'physical',icon:'🔧',name:'Manufacturing',desc:'Make and sell products',margin:'med',
+    costs:[
+      {name:'Raw materials',type:'pct',val:35},
+      {name:'Labour',type:'pct',val:20},
+      {name:'Equipment & overhead',type:'fixed',val:3000},
+      {name:'Distribution',type:'pct',val:8},
+    ]},
+  // FINANCE
+  {id:'trading',cat:'finance',icon:'📈',name:'Trading / Investing',desc:'Stocks, crypto, forex',margin:'high',
+    costs:[
+      {name:'Brokerage fees',type:'pct',val:1},
+      {name:'Short-term capital gains tax',type:'pct',val:30},
+      {name:'Tools & data feeds',type:'fixed',val:200},
+    ]},
+  {id:'realestate',cat:'finance',icon:'🏠',name:'Real Estate Rental',desc:'Residential or STR',margin:'med',
+    costs:[
+      {name:'Mortgage / financing',type:'pct',val:40},
+      {name:'Property tax & insurance',type:'pct',val:12},
+      {name:'Maintenance & repairs',type:'pct',val:8},
+      {name:'Property management',type:'pct',val:10},
+    ]},
+  {id:'staking',cat:'finance',icon:'🪙',name:'Crypto / Staking',desc:'Yield, staking rewards',margin:'high',
+    costs:[
+      {name:'Tax on income',type:'pct',val:30},
+      {name:'Platform fees',type:'pct',val:3},
+      {name:'Gas fees',type:'fixed',val:50},
+    ]},
+];
 
-  const modelNames = {
-    dropship: 'Dropshipping',
-    pod: 'Print on demand',
-    brand: 'Branded product',
-    digital: 'Digital product',
-  };
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let revenue = 50000;
+let currentModel = MODELS[0];
+let costs = [];
+let activeCat = 'all';
 
-  let current = 'dropship';
+const COLORS = ['#ff5c3a','#6b6aff','#f0a030','#4a9eff','#c060ff','#00d68a','#ff80ab','#40c8c8','#ffcc44','#a0a0a0'];
 
-  function setModel(m) {
-    current = m;
-    document.querySelectorAll('.tab').forEach(t => {
-      t.classList.toggle('active', t.textContent.trim() === modelNames[m]);
-    });
-    const d = models[m];
-    document.getElementById('ads').value = d.ads;
-    document.getElementById('cogs').value = d.cogs;
-    document.getElementById('returns').value = d.returns;
-    update();
-  }
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+function init() {
+  renderCats();
+  renderModels();
+  loadModel(MODELS[0]);
+  renderCompare();
+}
 
-  function fmt(n) {
-    return '$' + Math.round(n).toLocaleString();
-  }
+function renderCats() {
+  document.getElementById('cats').innerHTML = CATEGORIES.map(c =>
+    `<button class="cat-btn${c.id===activeCat?' active':''}" onclick="filterCat('${c.id}')">${c.label}</button>`
+  ).join('');
+}
 
-  function pct(n) {
-    return Math.round(n) + '%';
-  }
+function filterCat(id) {
+  activeCat = id;
+  renderCats();
+  renderModels();
+}
 
-  function update() {
-    const ads     = +document.getElementById('ads').value;
-    const cogs    = +document.getElementById('cogs').value;
-    const ret     = +document.getElementById('returns').value;
-    const fees    = 2;
-    const overhead = 2;
+function renderModels() {
+  const filtered = activeCat === 'all' ? MODELS : MODELS.filter(m => m.cat === activeCat);
+  document.getElementById('modelGrid').innerHTML = filtered.map(m =>
+    `<div class="model-card${m.id===currentModel.id?' active':''}" onclick="loadModel(MODELS.find(x=>x.id==='${m.id}'))">
+      <span class="mc-icon">${m.icon}</span>
+      <div class="mc-name">${m.name}</div>
+      <div class="mc-desc">${m.desc}</div>
+      <span class="mc-badge ${m.margin}">${m.margin==='high'?'High margin':m.margin==='med'?'Mid margin':'Low margin'}</span>
+    </div>`
+  ).join('');
+}
 
-    document.getElementById('ads-out').textContent     = pct(ads);
-    document.getElementById('cogs-out').textContent    = pct(cogs);
-    document.getElementById('returns-out').textContent = pct(ret);
-
-    const adAmt       = REVENUE * ads / 100;
-    const cogsAmt     = REVENUE * cogs / 100;
-    const retAmt      = REVENUE * ret / 100;
-    const feesAmt     = REVENUE * fees / 100;
-    const overheadAmt = REVENUE * overhead / 100;
-    const totalCost   = adAmt + cogsAmt + retAmt + feesAmt + overheadAmt;
-    const profit      = REVENUE - totalCost;
-    const margin      = profit / REVENUE * 100;
-
-    const marginColor = margin >= 20 ? 'var(--green)' : margin >= 10 ? 'var(--amber)' : 'var(--red)';
-
-    document.getElementById('metrics').innerHTML = `
-      <div class="metric">
-        <div class="mlabel">Revenue</div>
-        <div class="mval" style="color:var(--text)">${fmt(REVENUE)}</div>
-        <div class="msub">gross sales</div>
-      </div>
-      <div class="metric">
-        <div class="mlabel">Total costs</div>
-        <div class="mval" style="color:var(--red)">${fmt(totalCost)}</div>
-        <div class="msub">${pct(Math.round(totalCost/REVENUE*100))} of revenue</div>
-      </div>
-      <div class="metric">
-        <div class="mlabel">Take-home</div>
-        <div class="mval" style="color:${marginColor}">${fmt(profit)}</div>
-        <div class="msub">actual profit</div>
-      </div>
-      <div class="metric">
-        <div class="mlabel">Net margin</div>
-        <div class="mval" style="color:${marginColor}">${Math.round(margin)}%</div>
-        <div class="msub">${margin >= 20 ? 'healthy' : margin >= 10 ? 'thin' : 'dangerously low'}</div>
-      </div>
-    `;
-
-    document.getElementById('breakdown').innerHTML = `
-      <div class="brow"><span class="bname">Revenue</span><span class="bval pos">${fmt(REVENUE)}</span></div>
-      <div class="brow"><span class="bname">Ad spend (${pct(ads)})</span><span class="bval neg">−${fmt(adAmt)}</span></div>
-      <div class="brow"><span class="bname">Product / fulfillment (${pct(cogs)})</span><span class="bval neg">−${fmt(cogsAmt)}</span></div>
-      <div class="brow"><span class="bname">Returns & chargebacks (${pct(ret)})</span><span class="bval neg">−${fmt(retAmt)}</span></div>
-      <div class="brow"><span class="bname">Platform fees & apps (${pct(fees)})</span><span class="bval neg">−${fmt(feesAmt)}</span></div>
-      <div class="brow"><span class="bname">Misc overhead (${pct(overhead)})</span><span class="bval neg">−${fmt(overheadAmt)}</span></div>
-      <div class="brow total"><span class="bname">Take-home profit</span><span class="bval ${profit >= 0 ? 'pos' : 'neg'}">${fmt(profit)}</span></div>
-    `;
-
-    const segs = [
-      { label: 'Ads',     val: adAmt,              color: '#e05a3a' },
-      { label: 'Product', val: cogsAmt,             color: '#888580' },
-      { label: 'Returns', val: retAmt,              color: '#e8a030' },
-      { label: 'Fees',    val: feesAmt + overheadAmt, color: '#444240' },
-      { label: 'Profit',  val: Math.max(profit, 0), color: '#1fba85' },
-    ];
-
-    document.getElementById('bar').innerHTML = segs.map(s => {
-      const w = Math.max(s.val / REVENUE * 100, 0).toFixed(1);
-      return `<div class="bar-seg" style="width:${w}%;background:${s.color};color:#fff;">${w > 7 ? s.label : ''}</div>`;
-    }).join('');
-
-    document.getElementById('legend').innerHTML = segs.map(s =>
-      `<div class="legend-item">
-        <div class="legend-dot" style="background:${s.color}"></div>
-        ${s.label} — ${fmt(s.val)}
-      </div>`
-    ).join('');
-
-    let verdictClass, verdictText;
-    if (margin >= 25) {
-      verdictClass = 'good';
-      verdictText = `// Strong margin at ${Math.round(margin)}%. You're keeping ${fmt(profit)} of every $50k day. This is a healthy, scalable business.`;
-    } else if (margin >= 12) {
-      verdictClass = 'ok';
-      verdictText = `// Thin but viable at ${Math.round(margin)}%. You're keeping ${fmt(profit)}. One bad ad campaign or return spike wipes this out — optimize costs.`;
-    } else if (margin > 0) {
-      verdictClass = 'bad';
-      verdictText = `// Warning: only ${Math.round(margin)}% margin. You're keeping ${fmt(profit)} on $50k revenue. Any unexpected cost or ad underperformance puts you in the red.`;
-    } else {
-      verdictClass = 'bad';
-      verdictText = `// You're losing money. With these costs, a $50k revenue day actually costs you ${fmt(Math.abs(profit))} more than you make. Unsustainable.`;
-    }
-
-    document.getElementById('verdict').innerHTML = `<div class="verdict ${verdictClass}">${verdictText}</div>`;
-  }
-
+function loadModel(m) {
+  currentModel = m;
+  costs = m.costs.map(c => ({...c, id: Math.random().toString(36).slice(2)}));
+  renderModels();
+  renderCosts();
   update();
+}
+
+// ─── REVENUE ─────────────────────────────────────────────────────────────────
+function onRevInput(el) {
+  const raw = el.value.replace(/[^0-9]/g,'');
+  revenue = parseInt(raw) || 0;
+  update();
+}
+function formatRevInput(el) {
+  el.value = revenue.toLocaleString();
+}
+
+// ─── COSTS ────────────────────────────────────────────────────────────────────
+function renderCosts() {
+  document.getElementById('costItems').innerHTML = costs.map((c,i) =>
+    `<div class="cost-row" id="cr-${c.id}">
+      <input class="cost-name-input" value="${c.name}" oninput="costs[${i}].name=this.value;update()" placeholder="Cost name"/>
+      <select class="cost-type" onchange="costs[${i}].type=this.value;update()">
+        <option value="pct"${c.type==='pct'?' selected':''}>%</option>
+        <option value="fixed"${c.type==='fixed'?' selected':''}>$</option>
+      </select>
+      <div class="cost-val-wrap">
+        <span class="cost-sym">${c.type==='pct'?'':'$'}</span>
+        <input class="cost-val" type="number" value="${c.val}" min="0" oninput="costs[${i}].val=+this.value;update()"/>
+        <span class="cost-sym">${c.type==='pct'?'%':''}</span>
+      </div>
+      <button class="del-btn" onclick="deleteCost('${c.id}')">×</button>
+    </div>`
+  ).join('');
+}
+
+function deleteCost(id) {
+  costs = costs.filter(c => c.id !== id);
+  renderCosts();
+  update();
+}
+
+function resetCosts() {
+  loadModel(currentModel);
+}
+
+function addCustomCost() {
+  const name = document.getElementById('newCostName').value.trim();
+  if (!name) return;
+  const type = document.getElementById('newCostType').value;
+  costs.push({id: Math.random().toString(36).slice(2), name, type, val: type==='pct'?5:100});
+  document.getElementById('newCostName').value = '';
+  renderCosts();
+  update();
+}
+
+// ─── CALCULATIONS ──────────────────────────────────────────────────────────────
+function calcCosts() {
+  return costs.map(c => ({
+    ...c,
+    amount: c.type === 'pct' ? revenue * c.val / 100 : c.val
+  }));
+}
+
+function fmt(n) { return '$' + Math.round(n).toLocaleString(); }
+function fmtPct(n) { return Math.round(n*10)/10 + '%'; }
+
+// ─── UPDATE ───────────────────────────────────────────────────────────────────
+function update() {
+  const items = calcCosts();
+  const totalCost = items.reduce((s,c) => s+c.amount, 0);
+  const profit = revenue - totalCost;
+  const margin = revenue > 0 ? profit / revenue * 100 : 0;
+  const marginColor = margin >= 25 ? 'var(--green)' : margin >= 12 ? 'var(--amber)' : 'var(--red)';
+
+  // BIG NUMBER
+  document.getElementById('bigNumber').innerHTML = `
+    <div class="bn-label">${currentModel.icon} ${currentModel.name} — Take-home profit</div>
+    <div class="bn-val" style="color:${profit>=0?'var(--green)':'var(--red)'}">${fmt(profit)}</div>
+    <div class="bn-sub" style="color:${marginColor}">${fmtPct(margin)} net margin &nbsp;·&nbsp; ${fmt(totalCost)} total costs</div>
+  `;
+
+  // STAT GRID
+  const period = document.getElementById('periodSel').value;
+  const multipliers = {day:1,week:7,month:30,year:365};
+  const mult = multipliers[period] || 1;
+  const pmLabels = {day:'monthly (×30)',week:'monthly (×4)',month:'annual (×12)',year:'5-year (×5)'};
+  const pmMult = {day:30,week:4,month:12,year:5};
+
+  document.getElementById('statGrid').innerHTML = `
+    <div class="stat">
+      <div class="stat-l">Net margin</div>
+      <div class="stat-v" style="color:${marginColor}">${fmtPct(margin)}</div>
+      <div class="stat-s">${margin>=25?'Healthy ✓':margin>=12?'Thin △':'Danger ✗'}</div>
+    </div>
+    <div class="stat">
+      <div class="stat-l">Cost ratio</div>
+      <div class="stat-v" style="color:var(--muted)">${fmtPct(revenue>0?totalCost/revenue*100:0)}</div>
+      <div class="stat-s">of revenue consumed</div>
+    </div>
+    <div class="stat">
+      <div class="stat-l">Profit ${pmLabels[period]||'annual'}</div>
+      <div class="stat-v" style="color:${profit>=0?'var(--green)':'var(--red)'}">${fmt(profit*(pmMult[period]||12))}</div>
+      <div class="stat-s">projected</div>
+    </div>
+    <div class="stat">
+      <div class="stat-l">Profit per $1 earned</div>
+      <div class="stat-v" style="color:${marginColor}">${revenue>0?'$'+(profit/revenue).toFixed(2):'—'}</div>
+      <div class="stat-s">actual kept</div>
+    </div>
+  `;
+
+  // DONUT
+  renderDonut(items, totalCost);
+
+  // BAR
+  renderBar(items, profit);
+
+  // VERDICT
+  renderVerdict(margin, profit);
+
+  // PROJECTIONS
+  renderProjections(profit, period);
+
+  // BREAKEVEN
+  renderBreakeven(margin);
+
+  // COMPARE (only cost data, no full rerender)
+  updateCompareCards();
+}
+
+// ─── DONUT ────────────────────────────────────────────────────────────────────
+function renderDonut(items, totalCost) {
+  const cx=65,cy=65,r=50,sw=18;
+  const circ=2*Math.PI*r;
+  let offset=0;
+  const slices = items.filter(c=>c.amount>0).map((c,i)=>({...c,color:COLORS[i%COLORS.length]}));
+  const total = totalCost > 0 ? totalCost : 1;
+
+  let paths = '';
+  slices.forEach(s=>{
+    const frac = s.amount/total;
+    const dash = frac*circ;
+    const gap = circ-dash;
+    paths += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.color}" stroke-width="${sw}"
+      stroke-dasharray="${dash.toFixed(2)} ${gap.toFixed(2)}"
+      stroke-dashoffset="${(-offset*circ).toFixed(2)}"
+      style="transition:stroke-dasharray .3s"/>`;
+    offset += frac;
+  });
+
+  if(!slices.length){
+    paths=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--s3)" stroke-width="${sw}"/>`;
+  }
+
+  document.getElementById('donutSvg').innerHTML =
+    `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--s3)" stroke-width="${sw}"/>` + paths;
+
+  document.getElementById('donutCenterVal').textContent = fmt(totalCost);
+
+  document.getElementById('donutLegend').innerHTML = slices.map(s=>
+    `<div class="dl-item">
+      <div class="dl-dot" style="background:${s.color}"></div>
+      <span class="dl-name">${s.name}</span>
+      <span class="dl-val">${fmt(s.amount)}</span>
+    </div>`
+  ).join('');
+}
+
+// ─── BAR ──────────────────────────────────────────────────────────────────────
+function renderBar(items, profit) {
+  const segs = [
+    ...items.filter(c=>c.amount>0).map((c,i)=>({label:c.name,val:c.amount,color:COLORS[i%COLORS.length]})),
+    {label:'Profit',val:Math.max(profit,0),color:'var(--green)'}
+  ];
+  const total = revenue > 0 ? revenue : 1;
+
+  document.getElementById('barTrack').innerHTML = segs.map(s=>{
+    const w = Math.max(s.val/total*100,0).toFixed(1);
+    return `<div class="bar-seg" style="width:${w}%;background:${s.color};color:${s.color==='var(--green)'?'#000':'#fff'}">${w>8?s.label:''}</div>`;
+  }).join('');
+
+  document.getElementById('barLegend').innerHTML = segs.map(s=>
+    `<div style="display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:11px;color:var(--muted)">
+      <div style="width:8px;height:8px;border-radius:2px;background:${s.color};flex-shrink:0"></div>
+      ${s.label} — ${fmt(s.val)}
+    </div>`
+  ).join('');
+}
+
+// ─── VERDICT ──────────────────────────────────────────────────────────────────
+function renderVerdict(margin, profit) {
+  let cls, text;
+  if(profit < 0){
+    cls='bad'; text=`// You're losing money. At current costs, this model costs you ${fmt(Math.abs(profit))} more than you make. Cut costs or raise prices immediately.`;
+  } else if(margin >= 30){
+    cls='great'; text=`// Excellent. ${fmtPct(margin)} net margin is strong by any standard. You keep ${fmt(profit)} of every revenue cycle. Scalable and sustainable.`;
+  } else if(margin >= 15){
+    cls='ok'; text=`// Viable but tight. ${fmtPct(margin)} margin means one bad month or rising ad costs could hurt. Focus on either increasing prices or cutting your biggest cost line.`;
+  } else {
+    cls='bad'; text=`// Warning: ${fmtPct(margin)} margin is dangerously thin. You're keeping only ${fmt(profit)}. A small disruption (returns spike, ad cost increase) puts you in the red.`;
+  }
+  document.getElementById('verdictEl').innerHTML = `<div class="verdict ${cls}">${text}</div>`;
+}
+
+// ─── PROJECTIONS ──────────────────────────────────────────────────────────────
+function renderProjections(profit, period) {
+  const toMonthly = {day:30,week:4,month:1,year:1/12};
+  const monthly = profit * (toMonthly[period]||1);
+  const label = {day:'(×30 days)',week:'(×4 weeks)',month:'',year:'(÷12)'};
+
+  document.getElementById('projSub').textContent = `Based on ${fmt(profit)} profit per ${period} ${label[period]||''}`;
+
+  const items = [
+    {period:'Weekly',val:monthly/4},
+    {period:'Monthly',val:monthly},
+    {period:'Quarterly',val:monthly*3},
+    {period:'6 Months',val:monthly*6},
+    {period:'Annual',val:monthly*12},
+    {period:'3 Year',val:monthly*36},
+  ];
+
+  document.getElementById('projGrid').innerHTML = items.map(p=>
+    `<div class="proj-item">
+      <div class="proj-period">${p.period}</div>
+      <div class="proj-val" style="color:${p.val>=0?'var(--green)':'var(--red)'}">${fmt(p.val)}</div>
+    </div>`
+  ).join('');
+}
+
+// ─── BREAKEVEN ────────────────────────────────────────────────────────────────
+function renderBreakeven(margin) {
+  const fixedRaw = (document.getElementById('fixedCosts').value||'').replace(/[^0-9]/g,'');
+  const fixed = parseInt(fixedRaw) || 0;
+  const aovRaw = (document.getElementById('aov').value||'').replace(/[^0-9]/g,'');
+  const aov = parseInt(aovRaw) || 50;
+
+  const contributionPct = margin / 100;
+  const contribution = aov * contributionPct;
+  const breakevenUnits = contribution > 0 ? Math.ceil(fixed / contribution) : Infinity;
+  const breakevenRev = breakevenUnits * aov;
+
+  document.getElementById('breakevenRows').innerHTML = `
+    <div class="be-row"><span class="be-key">Contribution margin per sale</span><span class="be-val">${fmt(contribution)}</span></div>
+    <div class="be-row"><span class="be-key">Break-even units to cover fixed costs</span><span class="be-val" style="color:var(--amber)">${breakevenUnits === Infinity ? '∞' : breakevenUnits.toLocaleString()} sales</span></div>
+    <div class="be-row"><span class="be-key">Break-even revenue needed</span><span class="be-val" style="color:var(--amber)">${breakevenRev === Infinity ? '∞' : fmt(breakevenRev)}</span></div>
+    <div class="be-row"><span class="be-key">After break-even, profit per sale</span><span class="be-val" style="color:var(--green)">${fmt(contribution)}</span></div>
+  `;
+}
+
+// ─── COMPARE ──────────────────────────────────────────────────────────────────
+let compareModels = ['dropship','digital'];
+
+function renderCompare() {
+  document.getElementById('compareGrid').innerHTML = [0,1].map(i=>`
+    <div class="cmp-card">
+      <select class="cmp-sel" onchange="compareModels[${i}]=this.value;updateCompareCards()">
+        ${MODELS.map(m=>`<option value="${m.id}"${m.id===compareModels[i]?' selected':''}>${m.icon} ${m.name}</option>`).join('')}
+      </select>
+      <div class="cmp-rows" id="cmp${i}"></div>
+    </div>
+  `).join('');
+  updateCompareCards();
+}
+
+function updateCompareCards() {
+  const profits = compareModels.map(mid=>{
+    const m = MODELS.find(x=>x.id===mid);
+    if(!m) return null;
+    const total = m.costs.reduce((s,c)=> s + (c.type==='pct'? revenue*c.val/100 : c.val), 0);
+    return {m, total, profit:revenue-total, margin:revenue>0?(revenue-total)/revenue*100:0};
+  });
+
+  const winnerIdx = profits[0] && profits[1] ? (profits[0].profit >= profits[1].profit ? 0 : 1) : -1;
+
+  profits.forEach((p,i)=>{
+    if(!p) return;
+    const el = document.getElementById('cmp'+i);
+    if(!el) return;
+    el.innerHTML = `
+      <div class="cmp-row"><span class="cmp-k">Revenue</span><span class="cmp-v pos">${fmt(revenue)}</span></div>
+      <div class="cmp-row"><span class="cmp-k">Total costs</span><span class="cmp-v neg" style="color:var(--red)">−${fmt(p.total)}</span></div>
+      <div class="cmp-row"><span class="cmp-k">Net margin</span><span class="cmp-v" style="color:${p.margin>=20?'var(--green)':p.margin>=10?'var(--amber)':'var(--red)'}">${fmtPct(p.margin)}</span></div>
+      <div class="cmp-row"><span class="cmp-k">Take-home profit</span><span class="cmp-v" style="color:${p.profit>=0?'var(--green)':'var(--red)'};font-size:15px">${fmt(p.profit)}</span></div>
+      ${winnerIdx===i?'<div class="winner-badge">★ Better model at this revenue</div>':''}
+    `;
+  });
+}
+
+// ─── START ────────────────────────────────────────────────────────────────────
+init();
 </script>
 </body>
 </html>
