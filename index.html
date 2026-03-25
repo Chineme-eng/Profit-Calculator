@@ -524,6 +524,115 @@ h1 em { font-style: italic; color: var(--accent); }
 .tip-title { font-family: var(--serif); font-size: 15px; font-weight: 400; margin-bottom: 6px; }
 .tip-body { font-size: 13px; color: var(--muted); font-family: var(--serif); line-height: 1.6; }
 
+
+.rev-presets {
+  display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:12px;
+}
+.preset-btn, .toggle-chip {
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border2);
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .04em;
+  cursor: pointer;
+  transition: all .15s;
+}
+.preset-btn:hover, .toggle-chip:hover, .toggle-chip.active {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+.insight-card {
+  background: linear-gradient(180deg, var(--surface), var(--bg2));
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+}
+.insight-list { display:flex; flex-direction:column; gap:10px; }
+.insight-item {
+  display:grid;
+  grid-template-columns: auto 1fr auto;
+  gap:10px;
+  align-items:center;
+  font-family: var(--mono);
+  font-size: 12px;
+}
+.insight-rank {
+  width: 22px; height: 22px; border-radius: 50%;
+  display:flex; align-items:center; justify-content:center;
+  border:1px solid var(--border2); color: var(--accent);
+  background: var(--accent-bg);
+}
+.insight-name { color: var(--text); }
+.insight-meta { color: var(--muted); text-align:right; }
+.target-grid {
+  display:grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items:end;
+}
+@media(max-width:600px){ .target-grid { grid-template-columns: 1fr; } }
+.target-field {
+  display:flex; flex-direction:column; gap:6px;
+}
+.target-label { font-family: var(--mono); font-size: 11px; letter-spacing:.08em; text-transform:uppercase; color: var(--muted); }
+.target-output {
+  margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--border);
+  display:grid; grid-template-columns: 1fr 1fr; gap: 10px;
+}
+@media(max-width:540px){ .target-output { grid-template-columns: 1fr; } }
+.target-stat {
+  background: var(--bg2); border:1px solid var(--border); border-radius: var(--r); padding: 12px 14px;
+}
+.target-stat .k { font-family: var(--mono); font-size:10px; color: var(--muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:4px; }
+.target-stat .v { font-family: var(--mono); font-size:17px; color: var(--text); }
+.benchmark-card {
+  margin-top: 14px;
+  background: linear-gradient(180deg, var(--surface), var(--bg2));
+  border: 1px solid var(--border);
+  border-radius: var(--r2);
+  padding: 16px 18px;
+  box-shadow: var(--shadow);
+}
+.benchmark-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 10px;
+}
+.benchmark-list { display:flex; flex-direction:column; gap:9px; }
+.benchmark-row {
+  display:grid;
+  grid-template-columns: 1fr auto;
+  gap:10px;
+  align-items:center;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.benchmark-row:last-child { border-bottom:none; padding-bottom:0; }
+.benchmark-name { font-size: 13px; color: var(--text); }
+.benchmark-range { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.benchmark-status {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: var(--r);
+  font-size: 13px;
+  line-height: 1.55;
+  border: 1px solid var(--border);
+  background: var(--bg2);
+}
+.benchmark-status.good { background: var(--green-bg); border-color: color-mix(in srgb, var(--green) 35%, var(--border)); color: var(--green); }
+.benchmark-status.ok { background: var(--amber-bg); border-color: color-mix(in srgb, var(--amber) 35%, var(--border)); color: var(--amber); }
+.benchmark-status.bad { background: var(--red-bg); border-color: color-mix(in srgb, var(--red) 35%, var(--border)); color: var(--red); }
+.benchmark-foot {
+  margin-top: 10px;
+  font-size: 12px;
+  color: var(--muted);
+}
+
 /* ── FOOTER ── */
 footer {
   margin-top: 4rem; padding-top: 2rem; border-top: 1px solid var(--border);
@@ -579,6 +688,16 @@ footer a:hover { text-decoration: underline; }
         </select>
       </div>
     </div>
+    <div class="rev-presets">
+      <button class="preset-btn" onclick="setRevenue(1000)">$1k</button>
+      <button class="preset-btn" onclick="setRevenue(5000)">$5k</button>
+      <button class="preset-btn" onclick="setRevenue(10000)">$10k</button>
+      <button class="preset-btn" onclick="setRevenue(50000)">$50k</button>
+      <button class="preset-btn" onclick="setRevenue(100000)">$100k</button>
+    </div>
+    <div class="rev-presets" style="margin-top:10px">
+      <button class="toggle-chip active" id="taxToggle" onclick="toggleTaxMode()">After-tax view: Off</button>
+    </div>
   </header>
 
   <!-- MODEL SELECTION -->
@@ -622,6 +741,10 @@ footer a:hover { text-decoration: underline; }
       <div style="margin-top:1.5rem">
         <div class="panel-label" style="margin-bottom:.75rem">What good margins look like</div>
         <div id="marginGuide"></div>
+        <div class="benchmark-card">
+          <div class="benchmark-title">Profit Intelligence Panel</div>
+          <div id="benchmarkPanel"></div>
+        </div>
       </div>
     </div>
 
@@ -656,6 +779,11 @@ footer a:hover { text-decoration: underline; }
         <div class="panel-label" style="margin-bottom:12px">Where every dollar goes</div>
         <div class="bar-track" id="barTrack"></div>
         <div class="bar-legend-wrap" id="barLegend"></div>
+      </div>
+
+      <div class="insight-card">
+        <div class="panel-label" style="margin-bottom:12px">Top 3 cost killers</div>
+        <div class="insight-list" id="costKillers"></div>
       </div>
 
       <!-- VERDICT -->
@@ -700,6 +828,39 @@ footer a:hover { text-decoration: underline; }
       <table class="be-table" style="padding:0 22px">
         <tbody id="beRows"></tbody>
       </table>
+    </div>
+  </section>
+
+  <!-- TARGET -->
+  <div class="divider"></div>
+  <section id="targetProfit">
+    <div class="section-head">
+      <span class="section-title">Target profit planner</span>
+      <span class="section-sub">reverse-calculate your goal</span>
+    </div>
+    <p style="font-size:14px;color:var(--muted);font-family:var(--serif);margin-bottom:1rem">
+      Put in the profit you want, and this calculator estimates how much revenue you need at your current margin structure.
+    </p>
+    <div class="panel">
+      <div class="target-grid">
+        <div class="target-field">
+          <span class="target-label">Desired profit</span>
+          <div class="be-field">
+            <span class="be-prefix">$</span>
+            <input class="be-input" id="targetProfitInput" type="text" value="10,000" oninput="update()"/>
+          </div>
+        </div>
+        <div class="target-field">
+          <span class="target-label">Time period</span>
+          <select class="cmp-sel" id="targetPeriodSel" onchange="update()" style="margin-bottom:0">
+            <option value="day">Per day</option>
+            <option value="week">Per week</option>
+            <option value="month" selected>Per month</option>
+            <option value="year">Per year</option>
+          </select>
+        </div>
+      </div>
+      <div class="target-output" id="targetOutput"></div>
     </div>
   </section>
 
@@ -855,6 +1016,7 @@ let currentModel = MODELS[0];
 let costs = [];
 let activeCat = 'all';
 let compareModels = ['dropship','digital'];
+let includeTax = false;
 
 // ── INIT ──────────────────────────────────────────────────────────────────────
 function init(){
@@ -909,6 +1071,21 @@ function onRevInput(el){
   update();
 }
 function formatRevInput(el){ el.value = revenue.toLocaleString(); }
+function setRevenue(val){
+  revenue = val;
+  const el = document.getElementById('revenueInput');
+  if(el) el.value = revenue.toLocaleString();
+  update();
+}
+function toggleTaxMode(){
+  includeTax = !includeTax;
+  const btn = document.getElementById('taxToggle');
+  if(btn){
+    btn.textContent = `After-tax view: ${includeTax ? 'On' : 'Off'}`;
+    btn.classList.toggle('active', includeTax);
+  }
+  update();
+}
 
 // ── COSTS ─────────────────────────────────────────────────────────────────────
 function renderCosts(){
@@ -950,7 +1127,13 @@ function addCustomCost(){
 
 // ── CALC ──────────────────────────────────────────────────────────────────────
 function calcItems(){
-  return costs.map(c=>({...c, amt: c.t==='pct'? revenue*c.v/100 : c.v}));
+  const base = costs.map(c=>({...c, amt: c.t==='pct'? revenue*c.v/100 : c.v}));
+  const subtotalProfit = revenue - base.reduce((s,c)=>s+c.amt,0);
+  if(includeTax && subtotalProfit > 0){
+    const taxRate = currentModel.cat === 'services' || currentModel.cat === 'content' ? 18 : 12;
+    base.push({n:'Estimated tax reserve', t:'pct', v:taxRate, amt: subtotalProfit * taxRate / 100, synthetic:true});
+  }
+  return base;
 }
 
 function fmt(n){ return '$'+Math.round(n).toLocaleString(); }
@@ -994,10 +1177,13 @@ function update(){
 
   renderDonut(items, totalCost);
   renderBar(items, profit);
-  renderVerdict(margin, profit);
+  renderCostKillers(items, totalCost);
+  renderVerdict(margin, profit, items, totalCost);
   renderProjections(profit, period);
   renderBreakeven(margin);
   renderMarginGuide(margin);
+  renderBenchmarkPanel(margin);
+  renderTargetPlanner(margin);
   updateCompareCards();
 }
 
@@ -1050,18 +1236,36 @@ function renderBar(items, profit){
   ).join('');
 }
 
+// ── COST KILLERS ──────────────────────────────────────────────────────────────
+function renderCostKillers(items, totalCost){
+  const top = items.filter(c=>c.amt>0).sort((a,b)=>b.amt-a.amt).slice(0,3);
+  const el = document.getElementById('costKillers');
+  if(!el) return;
+  if(!top.length){ el.innerHTML = '<div class="tip-body">No costs yet.</div>'; return; }
+  el.innerHTML = top.map((c,i)=>`<div class="insight-item">
+      <div class="insight-rank">${i+1}</div>
+      <div class="insight-name">${c.n}</div>
+      <div class="insight-meta">${fmt(c.amt)} · ${fmtP(totalCost>0 ? c.amt/totalCost*100 : 0)} of costs</div>
+    </div>`).join('');
+}
+
 // ── VERDICT ───────────────────────────────────────────────────────────────────
-function renderVerdict(margin,profit){
+function renderVerdict(margin,profit,items,totalCost){
+  const biggest = items.filter(c=>c.amt>0).sort((a,b)=>b.amt-a.amt)[0];
   let cls,text;
-  const m = currentModel;
+  const biggestMsg = biggest ? `${biggest.n} is your biggest drag at ${fmt(biggest.amt)}.` : '';
   if(profit<0){
-    cls='bad';text=`You're operating at a loss. At current costs you're spending ${fmt(Math.abs(profit))} more than you earn. Reduce the largest cost line or increase your price.`;
+    cls='bad';
+    text=`You're operating at a loss. You're overspending by ${fmt(Math.abs(profit))} this period. ${biggestMsg} Cut that first or raise pricing before scaling.`;
   } else if(margin>=30){
-    cls='great';text=`Strong margin at ${fmtP(margin)}. You keep ${fmt(profit)} from every revenue period. This business is healthy and scalable — focus on growth.`;
+    cls='great';
+    text=`Strong margin at ${fmtP(margin)}. You keep ${fmt(profit)} from ${fmt(revenue)} in revenue. ${biggestMsg} You're in a healthy range to scale.`;
   } else if(margin>=15){
-    cls='ok';text=`Viable but thin at ${fmtP(margin)}. You keep ${fmt(profit)}. One bad month or rising costs could hurt. Identify your biggest cost and find ways to reduce it.`;
+    cls='ok';
+    text=`This is workable, but still a bit exposed at ${fmtP(margin)}. You keep ${fmt(profit)}. ${biggestMsg} Tightening that line could noticeably improve take-home.`;
   } else {
-    cls='bad';text=`Warning: ${fmtP(margin)} margin is dangerously thin. You're keeping ${fmt(profit)} from ${fmt(revenue)} in revenue. Any disruption — returns, ad costs, refunds — puts you negative.`;
+    cls='bad';
+    text=`Warning: margin is only ${fmtP(margin)}. You're keeping ${fmt(profit)} from ${fmt(revenue)}. ${biggestMsg} One bad week in ads, refunds, or fulfillment could erase profit.`;
   }
   document.getElementById('verdictEl').innerHTML = `<div class="verdict ${cls}">${text}</div>`;
 }
@@ -1120,6 +1324,100 @@ function renderMarginGuide(current){
   ).join('') + `<p style="font-size:12px;color:var(--muted);margin-top:8px;font-family:var(--serif)">Your current margin: <strong style="font-family:var(--mono);color:${current>=20?'var(--green)':current>=10?'var(--amber)':'var(--red)'}">${fmtP(current)}</strong></p>`;
 }
 
+function renderBenchmarkPanel(current){
+  const el = document.getElementById('benchmarkPanel');
+  if(!el) return;
+
+  const modelBenchmarks = {
+    dropship:['Dropshipping','10%–25%'],
+    brand:['Shopify Brand','20%–40%'],
+    amazon:['Amazon FBA','15%–30%'],
+    pod:['Print on Demand','10%–20%'],
+    wholesale:['Wholesale / B2B','12%–28%'],
+    digital:['Digital Products','55%–85%'],
+    freelance:['Freelancing','45%–70%'],
+    agency:['Agency','20%–35%'],
+    automation:['AI Automation Agency','35%–60%'],
+    consulting:['Consulting','50%–75%'],
+    smma:['SMMA','20%–35%'],
+    youtube:['YouTube AdSense','30%–55%'],
+    faceless:['Faceless YouTube','25%–45%'],
+    newsletter:['Newsletter','35%–65%'],
+    course:['Online Course','45%–75%'],
+    affiliate:['Affiliate Marketing','45%–80%'],
+    podcast:['Podcast','30%–55%'],
+    saas:['SaaS / Micro-SaaS','55%–80%'],
+    app:['Mobile App','20%–40%'],
+    marketplace:['Marketplace','18%–35%'],
+    restaurant:['Restaurant / Food','5%–15%'],
+    retail:['Retail Store','8%–18%'],
+    manufacturing:['Manufacturing','12%–25%'],
+    trading:['Trading / Investing','20%–60%'],
+    realestate:['Real Estate Rental','15%–35%'],
+    staking:['Crypto / Staking','35%–70%'],
+  };
+
+  const featured = [
+    modelBenchmarks.dropship,
+    modelBenchmarks.brand,
+    modelBenchmarks.amazon,
+    modelBenchmarks.pod,
+    modelBenchmarks.saas
+  ];
+  const currentBench = modelBenchmarks[currentModel.id] || [currentModel.name,'20%–35%'];
+  const rangeText = currentBench[1];
+  const nums = rangeText.match(/\d+/g)?.map(Number) || [20,35];
+  const low = nums[0] || 20;
+  const high = nums[1] || low;
+
+  let statusClass = 'ok';
+  let statusText = `On par with a typical ${currentBench[0]} setup.`;
+  if(current < low){
+    statusClass = 'bad';
+    statusText = `Below average for ${currentBench[0]}. Tighten CAC, raise AOV, or trim fulfillment / ops leakage.`;
+  } else if(current > high){
+    statusClass = 'good';
+    statusText = `Above average for ${currentBench[0]}. You're operating in a stronger-than-normal range right now.`;
+  }
+
+  el.innerHTML = `
+    <div class="benchmark-list">
+      ${featured.map(([name, range]) => `
+        <div class="benchmark-row">
+          <div class="benchmark-name">${name}</div>
+          <div class="benchmark-range">${range}</div>
+        </div>
+      `).join('')}
+    </div>
+    <div class="benchmark-status ${statusClass}">
+      <strong style="font-family:var(--mono)">${currentBench[0]} benchmark:</strong> ${rangeText}. ${statusText}
+    </div>
+    <div class="benchmark-foot">Top operators usually push these higher by lowering customer acquisition cost and increasing average order value.</div>
+  `;
+}
+
+// ── TARGET PLANNER ────────────────────────────────────────────────────────────
+function renderTargetPlanner(margin){
+  const desired = parseInt((document.getElementById('targetProfitInput')?.value || '').replace(/[^0-9]/g,'')) || 0;
+  const period = document.getElementById('targetPeriodSel')?.value || 'month';
+  const currentPeriod = document.getElementById('periodSel').value;
+  const toMonthly = {day:30,week:4,month:1,year:1/12};
+  const fromMonthly = {day:1/30,week:1/4,month:1,year:12};
+  const desiredMonthly = desired * (toMonthly[period] || 1);
+  const currentMarginDecimal = Math.max(margin, 0.1) / 100;
+  const neededMonthlyRevenue = desiredMonthly / currentMarginDecimal;
+  const neededInChosenPeriod = neededMonthlyRevenue * (fromMonthly[currentPeriod] || 1);
+  const extraRevenue = neededInChosenPeriod - revenue;
+  const out = document.getElementById('targetOutput');
+  if(!out) return;
+  out.innerHTML = [
+    ['Revenue needed at current margin', fmt(neededInChosenPeriod)],
+    ['Extra revenue from current level', extraRevenue > 0 ? fmt(extraRevenue) : '$0'],
+    ['Current margin used', fmtP(margin)],
+    ['Target period', period]
+  ].map(([k,v])=>`<div class="target-stat"><div class="k">${k}</div><div class="v">${v}</div></div>`).join('');
+}
+
 // ── COMPARE ───────────────────────────────────────────────────────────────────
 function renderCompare(){
   document.getElementById('compareGrid').innerHTML = [0,1].map(i=>
@@ -1149,7 +1447,7 @@ function updateCompareCards(){
       <tr><td class="cmp-k">Total costs</td><td class="cmp-v neg-col">−${fmt(p.total)}</td></tr>
       <tr><td class="cmp-k">Net margin</td><td class="cmp-v" style="color:${p.margin>=20?'var(--green)':p.margin>=10?'var(--amber)':'var(--red)'}">${fmtP(p.margin)}</td></tr>
       <tr><td class="cmp-k">Take-home profit</td><td class="cmp-v" style="color:${p.profit>=0?'var(--green)':'var(--red)'}">${fmt(p.profit)}</td></tr>
-      ${wi===i?'<tr><td colspan="2"><span class="winner-tag">★ Better model at this revenue</span></td></tr>':''}
+      ${wi===i?'<tr><td colspan="2"><span class="winner-tag">★ Better take-home at this revenue</span></td></tr>':''}
     `;
   });
 }
